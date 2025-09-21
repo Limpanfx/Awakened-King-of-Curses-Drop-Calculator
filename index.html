@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cursed Energy Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-purple-950 via-purple-900 to-black min-h-screen flex flex-col items-center justify-center p-6">
+  <div class="bg-purple-900/40 backdrop-blur-xl border border-purple-400/40 rounded-2xl shadow-2xl w-full max-w-2xl p-8 text-purple-100">
+    <h1 class="text-3xl font-bold mb-6 text-center text-purple-400">🔮 Cursed Energy Calculator</h1>
+
+    <form id="calcForm" class="space-y-4">
+      <div>
+        <label class="block text-sm font-semibold mb-1 text-purple-200">Which Craft?</label>
+        <select id="craft" class="w-full p-3 rounded-xl bg-purple-950/60 border border-purple-400/40 text-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-400">
+          <option value="1">Divine Wheel (1250)</option>
+          <option value="2">Merged Beast (100)</option>
+          <option value="3">Divine General (250)</option>
+          <option value="4">Binding Vow (50)</option>
+          <option value="5">Reversed Curse Technique (100)</option>
+          <option value="6">Black Flash (250)</option>
+          <option value="7">Awakened King of Curses (500)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1 text-purple-200">Current Cursed Energy</label>
+        <input type="number" id="currentEnergy" value="0" step="any" class="w-full p-3 rounded-xl bg-purple-950/60 border border-purple-400/40 text-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-400">
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1 text-purple-200">Damage Per Fight</label>
+        <input type="number" id="damage" value="0" step="any" class="w-full p-3 rounded-xl bg-purple-950/60 border border-purple-400/40 text-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-400">
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1 text-purple-200">Time Per Fight (seconds)</label>
+        <input type="number" id="fightTime" value="0" step="any" class="w-full p-3 rounded-xl bg-purple-950/60 border border-purple-400/40 text-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-400">
+      </div>
+
+      <button type="submit" class="w-full py-3 rounded-xl bg-purple-500 hover:bg-purple-600 font-semibold text-white transition">Calculate</button>
+    </form>
+
+    <div id="results" class="mt-8 hidden">
+      <h2 class="text-2xl font-bold mb-4 text-center text-purple-400">📊 Results</h2>
+      <div class="space-y-2 text-sm font-mono">
+        <p id="neededDrops"></p>
+        <p id="seconds"></p>
+        <p id="hours"></p>
+        <p id="totalSeconds"></p>
+        <p id="totalHours"></p>
+      </div>
+    </div>
+  </div>
+
+  <p class="mt-4 text-xs text-purple-400 opacity-75">Made by Limpan</p>
+
+  <script>
+    const CRAFT_REQUIREMENTS = { 1: 1250, 2: 100, 3: 250, 4: 50, 5: 100, 6: 250, 7: 500 };
+    const PER_DROP_DAMAGE = 750000; // Damage needed for 1 cursed energy
+
+    document.getElementById('calcForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const craft = parseInt(document.getElementById('craft').value);
+      const currentEnergy = parseFloat(document.getElementById('currentEnergy').value) || 0;
+      const damage = parseFloat(document.getElementById('damage').value);
+      const fightTime = parseFloat(document.getElementById('fightTime').value);
+
+      const required = CRAFT_REQUIREMENTS[craft] - currentEnergy;
+
+      if (required <= 0) {
+        document.getElementById('results').classList.remove('hidden');
+        document.getElementById('neededDrops').textContent = `✅ You already have enough Cursed Energy for this craft!`;
+        document.getElementById('seconds').textContent = "";
+        document.getElementById('hours').textContent = "";
+        document.getElementById('totalSeconds').textContent = "";
+        document.getElementById('totalHours').textContent = "";
+        return;
+      }
+
+      const dmgPerSecond = damage / fightTime;
+      const secondsPerDrop = PER_DROP_DAMAGE / dmgPerSecond;
+      const secondsPerCraft = required * secondsPerDrop;
+
+      // Boss is only available 2/3 of the time (downtime included in real time estimate)
+      const realTimeSeconds = secondsPerCraft / (2/3);
+      const hoursPerCraft = secondsPerCraft / 3600;
+      const hoursRealTime = realTimeSeconds / 3600;
+
+      document.getElementById('neededDrops').textContent = `🔮 You need ${required} more Cursed Energy.`;
+      document.getElementById('seconds').textContent = `🕒 ${secondsPerCraft.toFixed(2)} seconds of active fighting (no downtime) or`;
+      document.getElementById('hours').textContent = `🕒 ${hoursPerCraft.toFixed(2)} hours of active fighting (no downtime)`;
+      document.getElementById('totalSeconds').textContent = `🕒 ${realTimeSeconds.toFixed(2)} seconds including boss downtime (real time to finish) or`;
+      document.getElementById('totalHours').textContent = `🕒 ${hoursRealTime.toFixed(2)} hours including boss downtime (real time to finish)`;
+
+      document.getElementById('results').classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>
